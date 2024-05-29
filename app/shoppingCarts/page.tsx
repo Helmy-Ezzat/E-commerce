@@ -1,46 +1,50 @@
 'use client'
-import React, { useEffect, useState } from 'react';
-import { useAuthStore } from '../_stores/userStore';
-import { jwtDecode } from 'jwt-decode';
-import Image from 'next/image';
+import React, { useEffect, useState } from 'react'
+import { useAuthStore } from '../_stores/userStore'
+import { jwtDecode } from 'jwt-decode'
+import Image from 'next/image'
 
 interface Product {
-  id: number;
-  image: string;
-  title: string;
-  quantity: number;
+  id: number
+  image: string
+  title: string
+  quantity: number
 }
 
 function ShoppingCarts() {
-  const [productsDetails, setProductsDetails] = useState<Product[] | null>(null);
-  const  {token}  = useAuthStore((state) => state.user);
+  const [productsDetails, setProductsDetails] = useState<Product[] | null>(null)
+  const { user } = useAuthStore((state) => state)
+  const token: string = user?.token ?? '' // Provide a default value if token is undefined
 
+  console.log(token)
 
   useEffect(() => {
     async function fetchCartDetails() {
       try {
-        const decodedToken = jwtDecode(token);
+        const decodedToken = jwtDecode(token)
         const response = await fetch(
           `https://fakestoreapi.com/carts/${decodedToken.sub}`
-        );
-        const cartData = await response.json();
+        )
+        const cartData = await response.json()
         const productsDetails = await Promise.all(
-          cartData.products.map(async (product: { productId: number; quantity: number }) => {
-            const productResponse = await fetch(
-              `https://fakestoreapi.com/products/${product.productId}`
-            );
-            const productData = await productResponse.json();
-            return { ...productData, quantity: product.quantity } as Product;
-          })
-        );
-        setProductsDetails(productsDetails);
-        console.log(productsDetails);
+          cartData.products.map(
+            async (product: { productId: number; quantity: number }) => {
+              const productResponse = await fetch(
+                `https://fakestoreapi.com/products/${product.productId}`
+              )
+              const productData = await productResponse.json()
+              return { ...productData, quantity: product.quantity } as Product
+            }
+          )
+        )
+        setProductsDetails(productsDetails)
+        console.log(productsDetails)
       } catch (error) {
-        console.error('Error fetching cart details:', error);
+        console.error('Error fetching cart details:', error)
       }
     }
-    fetchCartDetails();
-  }, [token]);
+    fetchCartDetails()
+  }, [token])
 
   return (
     <section>
@@ -110,7 +114,7 @@ function ShoppingCarts() {
         </div>
       </div>
     </section>
-  );
+  )
 }
 
-export default ShoppingCarts;
+export default ShoppingCarts

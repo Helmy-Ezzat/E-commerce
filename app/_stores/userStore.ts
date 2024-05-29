@@ -1,9 +1,11 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import Cookies from 'js-cookie'
+
 interface User {
   username: string
   password: string
+  token?: string
 }
 
 interface AuthState {
